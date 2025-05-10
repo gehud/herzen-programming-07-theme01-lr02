@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      name: Checkout repository
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-      name: Configure secret.py file
+    - name: Configure secret.py file
       run: |
         python -c "import os; file = open('secret.py', 'w'); file.write(f"OPEN_WEATHER_API = '{os.environ['OPEN_WEATHER_API']}'; WEATHER_API = '{os.environ['WEATHER_API']}'"); file.close()"
       shell: bash
@@ -24,5 +24,11 @@ jobs:
         OPEN_WEATHER_API : ${{secrets.OPEN_WEATHER_API}}
         WEATHER_API : ${{secrets.WEATHER_API}}
 
-      name: Run Docker Compose
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Run Docker Compose
       run: docker-compose up -d
