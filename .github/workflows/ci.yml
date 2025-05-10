@@ -33,7 +33,5 @@ jobs:
     - name: Run Docker Compose
       run: docker compose up -d
 
-    - name: Output URL
-      run: |
-        echo "Application should be available at:"
-        echo "http://localhost:5000"
+    - name: Get deployment URL
+      run: echo "Deployment URL - http://${{ steps.deploy.outputs.url }}"
