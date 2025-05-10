@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      name: Checkout repository
+      uses: actions/checkout@v2
+
+      name: Configure secret.py file
+      run: |
+        python -c "import os; file = open('secret.py', 'w'); file.write(f"OPEN_WEATHER_API = '{os.environ['OPEN_WEATHER_API']}'; WEATHER_API = '{os.environ['WEATHER_API']}'"); file.close()"
+      shell: bash
+      env:
+        OPEN_WEATHER_API : ${{secrets.OPEN_WEATHER_API}}
+        WEATHER_API : ${{secrets.WEATHER_API}}
+
+      name: Run Docker Compose
+      run: docker-compose up -d
