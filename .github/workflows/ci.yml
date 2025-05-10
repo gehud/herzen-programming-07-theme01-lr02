@@ -33,5 +33,20 @@ jobs:
     - name: Run Docker Compose
       run: docker compose up -d
 
-    - name: Get deployment URL
-      run: echo "Deployment URL - http://${{ steps.deploy.outputs.url }}"
+    - name: Wait for deployment
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        command="gh api -H 'X-GitHub-Api-Version: 2022-11-28' /repos/${{ github.repository }}/deployments?ref=${{ github.sha }}
+        | jq -r '.[0].payload.web_url | select ( . != null)'"
+        while [ true ]; do
+        url="$(eval $command)";
+        if [ -z "$url" ]; then
+            echo "Deployment not ready yet, waiting..."
+            sleep 5
+        else
+            echo "Deployment ready at $url"
+            echo "BASE_URL=$url" >> $GITHUB_ENV
+            break
+        fi
+        done
